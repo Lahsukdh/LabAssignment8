@@ -29,8 +29,65 @@ size_t Size(void* ptr)
 
 // implement merge sort
 // extraMemoryAllocated counts bytes of extra memory allocated
+void merge(int pData[], int l, int mid, int r){
+    int size1 = mid-l+1;
+    int size2 = r-mid;
+
+    int t1 = 0;
+    int t2 = 0;
+    int t3 = l;
+    
+    //left and right arrays
+    int* lArr = (int*) Alloc(sizeof(int) * size1);
+    int* rArr = (int*) Alloc(sizeof(int) * size2);
+
+    //copy data from pData to the left and right arrays
+    for(int i = 0; i < size1; i++){
+        lArr[i] = pData[l+i];
+    }
+    for(int i = 0; i < size2; i++){
+        rArr[i] = pData[mid+1+i];
+    }
+
+    //merge arrays into one
+    while(t1 < size1 && t2 < size2){
+        if(lArr[t1] <= rArr[t2]){
+            pData[t3] = lArr[t1];
+            t1++;
+        }
+        else{
+            pData[t3] = rArr[t2];
+            t2++;
+        }
+        t3++;
+    }
+
+    //if elements remain in either left or right, dump them into pData
+    while(t1 < size1){
+        pData[t3] = lArr[t1];
+        t1++;
+        t3++;
+    }
+    DeAlloc(lArr);
+    while(t2 < size2){
+        pData[t3] = rArr[t2];
+        t2++;
+        t3++;
+    }
+    DeAlloc(rArr);
+}
+
 void mergeSort(int pData[], int l, int r)
 {
+    //checks if there are more than one element
+    if(l < r){  
+        int mid = l+(r-l)/2;
+        mergeSort(pData, l, mid);
+        mergeSort(pData, mid+1, r);
+
+        merge(pData, l, mid, r);
+
+    }
 }
 
 // parses input file to an integer array
@@ -60,21 +117,24 @@ int parseData(char *inputFileName, int **ppData)
 
 		fclose(inFile);
 	}
-	
 	return dataSz;
 }
 
 // prints first and last 100 items in the data array
 void printArray(int pData[], int dataSz)
 {
-	int i, sz = dataSz - 100;
+    //I changed sz to equal half of the data size to traverse both halves of the array
+	int i, sz = dataSz/2;
 	printf("\tData:\n\t");
-	for (i=0;i<100;++i)
+
+    //print first half
+	for (i=0;i<sz;++i)
 	{
 		printf("%d ",pData[i]);
 	}
 	printf("\n\t");
 	
+    //print second half
 	for (i=sz;i<dataSz;++i)
 	{
 		printf("%d ",pData[i]);
